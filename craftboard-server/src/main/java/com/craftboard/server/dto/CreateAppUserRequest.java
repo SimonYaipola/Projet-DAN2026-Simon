@@ -1,5 +1,8 @@
 package com.craftboard.server.dto;
 
+/**
+ * DTO partage pour transporter des donnees entre le serveur et le desktop.
+ */
 public class CreateAppUserRequest {
 
     private Long cityId;

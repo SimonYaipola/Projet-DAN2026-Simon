@@ -9,7 +9,7 @@ CREATE TABLE city (
 id BIGINT PRIMARY KEY AUTO_INCREMENT,
 name VARCHAR(120) NOT NULL,
 api_url VARCHAR(255),
-code VARCHAR(16) NOT NULL UNIQUE,
+code VARCHAR(64) NOT NULL UNIQUE,
 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -22,9 +22,11 @@ city_id BIGINT NOT NULL,
 
 username VARCHAR(80) NOT NULL,
 password_hash VARCHAR(255) NOT NULL,
-role VARCHAR(30) NOT NULL DEFAULT 'USER',
+role VARCHAR(30) NOT NULL DEFAULT 'CITIZEN',
 
 display_name VARCHAR(120),
+player_entity_id VARCHAR(64),
+password_configured TINYINT(1) NOT NULL DEFAULT 0,
 
 -- Avatar en BLOB
 avatar LONGBLOB,
@@ -55,13 +57,16 @@ id BIGINT PRIMARY KEY AUTO_INCREMENT,
 city_id BIGINT NOT NULL,
 
 created_by BIGINT NOT NULL,
+assigned_to BIGINT,
 pole_id BIGINT NOT NULL,
 
-status VARCHAR(30) NOT NULL,
+status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+notes TEXT,
 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
 CONSTRAINT fk_order_city FOREIGN KEY (city_id) REFERENCES city(id),
 CONSTRAINT fk_order_user FOREIGN KEY (created_by) REFERENCES app_user(id),
+CONSTRAINT fk_order_assigned_user FOREIGN KEY (assigned_to) REFERENCES app_user(id),
 CONSTRAINT fk_order_pole FOREIGN KEY (pole_id) REFERENCES pole(id)
 );
 
@@ -99,6 +104,12 @@ name VARCHAR(120) NOT NULL,
 category VARCHAR(30) NOT NULL,
 tier VARCHAR(30),
 rarity VARCHAR(30),
+bitjita_item_id VARCHAR(64),
+slot VARCHAR(80),
+icon_asset_name VARCHAR(180),
+image_url VARCHAR(500),
+rarity_str VARCHAR(80),
+color_hex VARCHAR(16),
 
 condition_value INT DEFAULT 0,
 
@@ -119,13 +130,30 @@ city_id BIGINT NOT NULL,
 
 title VARCHAR(120) NOT NULL,
 description TEXT,
-status VARCHAR(30) NOT NULL,
+status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+recurrence VARCHAR(30) NOT NULL DEFAULT 'ONCE',
+resource_name VARCHAR(120) NOT NULL,
+target_quantity INT NOT NULL DEFAULT 1,
 
 created_by BIGINT,
 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+last_reset_at TIMESTAMP NULL,
 
 CONSTRAINT fk_quest_city FOREIGN KEY (city_id) REFERENCES city(id),
 CONSTRAINT fk_quest_user FOREIGN KEY (created_by) REFERENCES app_user(id)
+);
+
+CREATE TABLE quest_signup (
+id BIGINT PRIMARY KEY AUTO_INCREMENT,
+quest_id BIGINT NOT NULL,
+user_id BIGINT NOT NULL,
+pledged_quantity INT NOT NULL DEFAULT 1,
+created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+CONSTRAINT uq_quest_signup_user UNIQUE (quest_id, user_id),
+CONSTRAINT fk_signup_quest FOREIGN KEY (quest_id) REFERENCES quest(id),
+CONSTRAINT fk_signup_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+CONSTRAINT ck_signup_qty CHECK (pledged_quantity > 0)
 );
 
 -- ======================

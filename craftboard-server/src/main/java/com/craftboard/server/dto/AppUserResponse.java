@@ -2,6 +2,9 @@ package com.craftboard.server.dto;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO partage pour transporter des donnees entre le serveur et le desktop.
+ */
 public class AppUserResponse {
 
     private Long id;

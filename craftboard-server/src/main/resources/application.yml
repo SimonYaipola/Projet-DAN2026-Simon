@@ -1,11 +1,18 @@
 server:
   port: 8080
 
+bitjita:
+  base-url: https://bitjita.com
+  app-identifier: CraftBoard Projet-DAN2026
+
+craftboard:
+  app-admin-password: ${CRAFTBOARD_APP_ADMIN_PASSWORD:DestroyTown53}
+
 spring:
   datasource:
-    url: jdbc:mariadb://209.222.101.116:25383/craftboard
+    url: ${CRAFTBOARD_DB_URL:jdbc:mariadb://209.222.101.116:25383/craftboard}
     username: craftuser
-    password: motdepasse123
+    password: mdp123
     driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:

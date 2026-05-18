@@ -1,33 +1,61 @@
 package com.craftboard.server.controller;
 
-import com.craftboard.server.entity.City;
-import com.craftboard.server.repository.CityRepository;
+import com.craftboard.core.dto.CityRequest;
+import com.craftboard.core.dto.CityResetRequest;
+import com.craftboard.core.dto.CityResetResponse;
+import com.craftboard.core.dto.CityResponse;
+import com.craftboard.server.service.CityService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controleur REST expose par le serveur CraftBoard.
+ */
 @RestController
 @RequestMapping("/api/cities")
 public class CityController {
 
-    private final CityRepository repository;
+    private final CityService service;
 
-    public CityController(CityRepository repository) {
-        this.repository = repository;
+    public CityController(CityService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<City> getAll() {
-        return repository.findAll();
+    public List<CityResponse> getAll(@RequestParam(name = "importedOnly", required = false) Boolean importedOnly) {
+        return Boolean.TRUE.equals(importedOnly)
+                ? service.findImportedFromBitjita()
+                : service.findAll();
     }
 
     @GetMapping("/{id}")
-    public City getById(@PathVariable Long id) {
-        return repository.findById(id).orElse(null);
+    public CityResponse getById(@PathVariable(name = "id") Long id) {
+        return service.findById(id);
     }
 
     @PostMapping
-    public City create(@RequestBody City city) {
-        return repository.save(city);
+    @ResponseStatus(HttpStatus.CREATED)
+    public CityResponse create(@RequestBody CityRequest request) {
+        return service.create(request);
+    }
+
+    @PutMapping("/{id}")
+    public CityResponse update(@PathVariable(name = "id") Long id, @RequestBody CityRequest request) {
+        return service.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable(name = "id") Long id) {
+        service.delete(id);
+    }
+
+    @PostMapping("/{id}/reset")
+    public CityResetResponse resetImportedCity(
+            @PathVariable(name = "id") Long id,
+            @RequestBody CityResetRequest request) {
+        return service.resetImportedCity(id, request.adminPassword());
     }
 }

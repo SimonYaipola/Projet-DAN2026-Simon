@@ -1,70 +1,64 @@
 package com.craftboard.server.controller;
 
-import com.craftboard.server.dto.AppUserResponse;
-import com.craftboard.server.dto.CreateAppUserRequest;
-import com.craftboard.server.entity.AppUser;
-import com.craftboard.server.entity.City;
-import com.craftboard.server.repository.AppUserRepository;
-import com.craftboard.server.repository.CityRepository;
+import com.craftboard.core.dto.AdminUserUpdateRequest;
+import com.craftboard.core.dto.UserCreateRequest;
+import com.craftboard.core.dto.UserResponse;
+import com.craftboard.core.dto.UserUpdateRequest;
+import com.craftboard.server.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+/**
+ * Controleur REST expose par le serveur CraftBoard.
+ */
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final AppUserRepository appUserRepository;
-    private final CityRepository cityRepository;
+    private final UserService service;
 
-    public UserController(
-            AppUserRepository appUserRepository,
-            CityRepository cityRepository) {
-        this.appUserRepository = appUserRepository;
-        this.cityRepository = cityRepository;
+    public UserController(UserService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<AppUserResponse> getAll() {
-        return appUserRepository.findAll().stream()
-                .map(this::toResponse)
-                .toList();
+    public List<UserResponse> getAll() {
+        return service.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public UserResponse getById(@PathVariable(name = "id") Long id) {
+        return service.findById(id);
     }
 
     @GetMapping("/city/{cityId}")
-    public List<AppUserResponse> getByCity(@PathVariable Long cityId) {
-        return appUserRepository.findByCityId(cityId).stream()
-                .map(this::toResponse)
-                .toList();
+    public List<UserResponse> getByCity(@PathVariable(name = "cityId") Long cityId) {
+        return service.findByCity(cityId);
     }
 
     @PostMapping
-    public AppUserResponse create(@RequestBody CreateAppUserRequest request) {
-        City city = cityRepository.findById(request.getCityId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "City not found"));
-
-        AppUser user = new AppUser();
-        user.setCity(city);
-        user.setUsername(request.getUsername());
-        user.setPasswordHash(request.getPasswordHash());
-        user.setRole(request.getRole());
-        user.setDisplayName(request.getDisplayName());
-
-        AppUser savedUser = appUserRepository.save(user);
-        return toResponse(savedUser);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse create(@RequestBody UserCreateRequest request) {
+        return service.create(request);
     }
 
-    private AppUserResponse toResponse(AppUser user) {
-        return new AppUserResponse(
-                user.getId(),
-                user.getCity().getId(),
-                user.getUsername(),
-                user.getRole(),
-                user.getDisplayName(),
-                user.getCreatedAt()
-        );
+    @PutMapping("/{id}")
+    public UserResponse update(@PathVariable(name = "id") Long id, @RequestBody UserUpdateRequest request) {
+        return service.update(id, request);
+    }
+
+    @PatchMapping("/{id}/admin")
+    public UserResponse adminUpdate(
+            @PathVariable(name = "id") Long id,
+            @RequestBody AdminUserUpdateRequest request) {
+        return service.adminUpdate(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable(name = "id") Long id) {
+        service.delete(id);
     }
 }

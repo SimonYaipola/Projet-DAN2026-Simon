@@ -1,5 +1,6 @@
 package com.craftboard.server.entity;
 
+import com.craftboard.core.enums.UserRole;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -10,6 +11,9 @@ import java.time.LocalDateTime;
                 @UniqueConstraint(name = "uq_user_city", columnNames = {"city_id", "username"})
         }
 )
+/**
+ * Entite JPA correspondant a une table de la base CraftBoard.
+ */
 public class AppUser {
 
     @Id
@@ -26,11 +30,18 @@ public class AppUser {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private String role;
+    private UserRole role = UserRole.CITIZEN;
 
     @Column(name = "display_name", length = 120)
     private String displayName;
+
+    @Column(name = "player_entity_id", length = 64)
+    private String playerEntityId;
+
+    @Column(name = "password_configured", nullable = false)
+    private Boolean passwordConfigured = false;
 
     @Lob
     private byte[] avatar;
@@ -66,11 +77,11 @@ public class AppUser {
         this.passwordHash = passwordHash;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 
@@ -80,6 +91,22 @@ public class AppUser {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public String getPlayerEntityId() {
+        return playerEntityId;
+    }
+
+    public void setPlayerEntityId(String playerEntityId) {
+        this.playerEntityId = playerEntityId;
+    }
+
+    public Boolean getPasswordConfigured() {
+        return passwordConfigured;
+    }
+
+    public void setPasswordConfigured(Boolean passwordConfigured) {
+        this.passwordConfigured = passwordConfigured;
     }
 
     public byte[] getAvatar() {

@@ -3,6 +3,9 @@ package com.craftboard.server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Point d'entree Spring Boot du serveur CraftBoard.
+ */
 @SpringBootApplication
 public class CraftBoardServerApplication {
 

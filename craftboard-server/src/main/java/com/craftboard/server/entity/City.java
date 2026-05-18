@@ -3,6 +3,9 @@ package com.craftboard.server.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Entite JPA correspondant a une table de la base CraftBoard.
+ */
 @Entity
 @Table(name = "city")
 public class City {
@@ -16,9 +19,10 @@ public class City {
 
     private String apiUrl;
 
-    @Column(nullable = false, unique = true, length = 16)
+    @Column(nullable = false, unique = true, length = 64)
     private String code;
 
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     public Long getId() {
